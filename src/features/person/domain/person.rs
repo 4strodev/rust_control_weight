@@ -8,12 +8,6 @@ pub struct Person {
     pub height: f32,
 }
 
-impl Person {
-    pub fn get_name(&self) -> &String {
-        &self.name
-    }
-}
-
 /// Converts struct fiels into string representation
 impl fmt::Display for Person {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
