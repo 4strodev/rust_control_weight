@@ -8,6 +8,12 @@ pub struct Person {
     pub height: f32,
 }
 
+impl Person {
+    pub fn get_index(&self) -> f32 {
+        self.weight / (self.height * self.height)
+    }
+}
+
 /// Converts struct fiels into string representation
 impl fmt::Display for Person {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

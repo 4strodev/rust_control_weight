@@ -3,41 +3,48 @@ use std::{
     collections::HashMap,
     fmt::Debug,
     io::{self, Write},
-    process::exit,
     str::FromStr,
 };
 
 pub mod features;
 
 fn main() {
-    let mut neighborhoods: HashMap<&str, Vec<Person>> = HashMap::new();
-    let mut neighborhoods_avg: HashMap<&str, f32> = HashMap::new();
+    let mut neighborhoods: HashMap<String, Vec<Person>> = HashMap::new();
+    let mut neighborhoods_avg: HashMap<String, f32> = HashMap::new();
 
-    let (neighborhood, persons) = ask_neighborhood();
+    loop {
+        // Asking for a neighborhood
+        let (neighborhood, persons) = ask_neighborhood();
 
-    neighborhoods.insert(&neighborhood, persons);
+        if neighborhood == "" {
+            break;
+        }
 
-    // Getting avg
-    neighborhoods.iter().for_each(|persons| {
-        let persons = persons.1;
+        // Saving results in hashmap
+        neighborhoods.insert(neighborhood.to_string(), persons);
 
-        // Getting avg of neighborhood
-        let avg = match persons
-            .iter()
-            // Mapping persons to their index
-            .map(|person| person.weight / (person.height * person.height))
-            // Getting the total of indexos
-            .reduce(|acum, index| acum + index)
-        {
-            // If reduce return a value then calc the index
-            Some(value) => value / persons.len() as f32,
-            // else return 0
-            None => 0f32,
-        };
+        // Getting avg
+        neighborhoods.iter().for_each(|persons| {
+            let persons = persons.1;
 
-        // Saving neighborhood average
-        neighborhoods_avg.insert(&neighborhood, avg);
-    });
+            // Getting avg of neighborhood
+            let avg = match persons
+                .iter()
+                // Mapping persons to their index
+                .map(|person| person.get_index())
+                // Getting the total of indexos
+                .reduce(|acum, index| acum + index)
+            {
+                // If reduce return a value then calc the index
+                Some(value) => value / persons.len() as f32,
+                // else return 0
+                None => 0f32,
+            };
+
+            // Saving neighborhood average
+            neighborhoods_avg.insert(neighborhood.to_string(), avg);
+        });
+    }
 
     println!("{:?}", neighborhoods_avg);
 }
@@ -72,13 +79,17 @@ where
     }
 }
 
+/// Ask for a neighborhood to the user and return their name and the people inserted in that
+/// neighborhood
 fn ask_neighborhood() -> (String, Vec<Person>) {
     let neighborhood = input("Introdueix el barri: ");
-    // If no neighborhood introduced then stop program;
-    if neighborhood == "" {
-        exit(0);
-    }
     let mut persons: Vec<Person> = vec![];
+    // If no neighborhood introduced then return;
+    if neighborhood == "" {
+        return (neighborhood, persons);
+    }
+
+    // Asking for persons
     loop {
         let name = input("Introdueix el nom: ");
         // If name is empty break loop
