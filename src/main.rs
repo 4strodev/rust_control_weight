@@ -1,45 +1,45 @@
 use features::person::domain::person::Person;
-use std::collections::HashMap;
-use std::fmt::Debug;
-use std::io;
-use std::io::Write;
-use std::str::FromStr;
+use std::{
+    collections::HashMap,
+    fmt::Debug,
+    io::{self, Write},
+    process::exit,
+    str::FromStr,
+};
 
 pub mod features;
 
 fn main() {
-    let mut neighborhoods_avg: HashMap<&str, Vec<Person>> = HashMap::new();
-    let neighborhood = input("Introdueix el barri: ").trim().to_string();
-    if neighborhood == "" {
-        std::process::exit(0);
-    }
+    let mut neighborhoods: HashMap<&str, Vec<Person>> = HashMap::new();
+    let mut neighborhoods_avg: HashMap<&str, f32> = HashMap::new();
 
-    let mut persons: Vec<Person> = vec![];
-    loop {
-        let name = input("Introdueix el nom: ").trim().to_string();
-        // If name is empty break loop
-        if name == "" {
-            break;
-        }
-        let age: i8 = input_as("Introdueix l'edat: ");
-        let height: f32 = input_as("Introdueix l'alçada: ");
-        let weight: f32 = input_as("Introdueix el pes: ");
+    let (neighborhood, persons) = ask_neighborhood();
 
-        let person: Person = Person {
-            age,
-            name,
-            height,
-            weight,
+    neighborhoods.insert(&neighborhood, persons);
+
+    // Getting avg
+    neighborhoods.iter().for_each(|persons| {
+        let persons = persons.1;
+
+        // Getting avg of neighborhood
+        let avg = match persons
+            .iter()
+            // Mapping persons to their index
+            .map(|person| person.weight / (person.height * person.height))
+            // Getting the total of indexos
+            .reduce(|acum, index| acum + index)
+        {
+            // If reduce return a value then calc the index
+            Some(value) => value / persons.len() as f32,
+            // else return 0
+            None => 0f32,
         };
 
-        persons.push(person);
-    }
+        // Saving neighborhood average
+        neighborhoods_avg.insert(&neighborhood, avg);
+    });
 
-    neighborhoods_avg.insert(&neighborhood, persons);
-
-    neighborhoods_avg
-        .iter()
-        .for_each(|persons| println!("{:?}", persons.1));
+    println!("{:?}", neighborhoods_avg);
 }
 
 /// Prints a message without \n character and returns stdin input
@@ -56,7 +56,7 @@ fn input(message: &str) -> String {
         .read_line(&mut input)
         .expect("Error reading from stdin");
 
-    input
+    input.trim().to_string()
 }
 
 /// Ask user for an input and converts it to specified data type
@@ -70,4 +70,31 @@ where
             Err(_) => println!("Error trying to convert input"),
         }
     }
+}
+
+fn ask_neighborhood() -> (String, Vec<Person>) {
+    let neighborhood = input("Introdueix el barri: ");
+    // If no neighborhood introduced then stop program;
+    if neighborhood == "" {
+        exit(0);
+    }
+    let mut persons: Vec<Person> = vec![];
+    loop {
+        let name = input("Introdueix el nom: ");
+        // If name is empty break loop
+        if name == "" {
+            break;
+        }
+
+        let person: Person = Person {
+            name,
+            age: input_as("Introdueix l'edat: "),
+            height: input_as("Introdueix l'alçada: "),
+            weight: input_as("Introdueix el pes: "),
+        };
+
+        persons.push(person);
+    }
+
+    (neighborhood, persons)
 }
