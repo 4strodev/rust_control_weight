@@ -9,6 +9,7 @@ pub struct Person {
 }
 
 impl Person {
+    /// Calculates the index of a person
     pub fn get_index(&self) -> f32 {
         self.weight / (self.height * self.height)
     }
