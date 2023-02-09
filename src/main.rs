@@ -61,7 +61,7 @@ fn input(message: &str) -> String {
 
     io::stdin()
         .read_line(&mut input)
-        .expect("Error reading from stdin");
+        .expect("Error reading from stdin!");
 
     input.trim().to_string()
 }
@@ -74,7 +74,7 @@ where
     loop {
         match input(message).trim().parse::<T>() {
             Ok(number) => return number,
-            Err(_) => println!("Error trying to convert input"),
+            Err(_) => println!("Error trying to convert input!"),
         }
     }
 }
@@ -82,7 +82,7 @@ where
 /// Ask for a neighborhood to the user and return their name and the people inserted in that
 /// neighborhood
 fn ask_neighborhood() -> (String, Vec<Person>) {
-    let neighborhood = input("Introdueix el barri: ");
+    let neighborhood = input("Put the neighborhood: ");
     let mut persons: Vec<Person> = vec![];
     // If no neighborhood introduced then return;
     if neighborhood == "" {
@@ -91,7 +91,7 @@ fn ask_neighborhood() -> (String, Vec<Person>) {
 
     // Asking for persons
     loop {
-        let name = input("Introdueix el nom: ");
+        let name = input("Put the name: ");
         // If name is empty break loop
         if name == "" {
             break;
@@ -99,9 +99,9 @@ fn ask_neighborhood() -> (String, Vec<Person>) {
 
         let person: Person = Person {
             name,
-            age: input_as("Introdueix l'edat: "),
-            height: input_as("Introdueix l'alçada: "),
-            weight: input_as("Introdueix el pes: "),
+            age: input_as("Put the age: "),
+            height: input_as("Put the height: "),
+            weight: input_as("Put the weight: "),
         };
 
         persons.push(person);
